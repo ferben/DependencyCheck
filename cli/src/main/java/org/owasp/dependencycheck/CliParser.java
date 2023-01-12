@@ -319,7 +319,7 @@ public final class CliParser {
                 .addOption(newOption(ARGUMENT.HELP_SHORT, ARGUMENT.HELP, "Print this message."))
                 .addOption(newOption(ARGUMENT.ADVANCED_HELP, "Print the advanced help message."))
                 .addOption(newOption(ARGUMENT.DISABLE_AUTO_UPDATE_SHORT, ARGUMENT.DISABLE_AUTO_UPDATE,
-                        "Disables the automatic updating of the CPE data."))
+                        "Disables the automatic updating of the NVD-CVE, hosted-suppressions and RetireJS data."))
                 .addOption(newOptionWithArg(ARGUMENT.VERBOSE_LOG_SHORT, ARGUMENT.VERBOSE_LOG, "file",
                         "The file path to write verbose logging information."))
                 .addOptionGroup(newOptionGroup(newOptionWithArg(ARGUMENT.SUPPRESSION_FILES, "file",
@@ -389,6 +389,8 @@ public final class CliParser {
                 .addOption(newOptionWithArg(ARGUMENT.PATH_TO_BUNDLE_AUDIT_WORKING_DIRECTORY, "path",
                         "The path to working directory that the bundle-audit command should be executed from when "
                         + "doing Gem bundle analysis."))
+                .addOption(newOptionWithArg(ARGUMENT.OSSINDEX_URL, "url",
+                        "Alternative URL for the OSS Index. If not set the public Sonatype OSS Index will be used."))
                 .addOption(newOptionWithArg(ARGUMENT.OSSINDEX_USERNAME, "username",
                         "The username to authenticate to Sonatype's OSS Index. If not set the Sonatype OSS Index "
                         + "Analyzer will use an unauthenticated connection."))
@@ -401,6 +403,10 @@ public final class CliParser {
                         + "even if autoupdate is disabled"))
                 .addOption(newOptionWithArg(ARGUMENT.RETIREJS_URL, "url",
                         "The Retire JS Respository URL"))
+                .addOption(newOptionWithArg(ARGUMENT.RETIREJS_URL_USER, "username",
+                        "The password to authenticate to Retire JS Respository URL"))
+                .addOption(newOptionWithArg(ARGUMENT.RETIREJS_URL_PASSWORD, "password",
+                        "The password to authenticate to Retire JS Respository URL"))
                 .addOption(newOption(ARGUMENT.RETIREJS_FILTER_NON_VULNERABLE, "Specifies that the Retire JS "
                         + "Analyzer should filter out non-vulnerable JS files from the report."))
                 .addOption(newOptionWithArg(ARGUMENT.ARTIFACTORY_PARALLEL_ANALYSIS, "true/false",
@@ -465,6 +471,7 @@ public final class CliParser {
                 .addOption(newOption(ARGUMENT.DISABLE_PIPFILE, "Disable the Pipfile Analyzer."))
                 .addOption(newOption(ARGUMENT.DISABLE_COMPOSER, "Disable the PHP Composer Analyzer."))
                 .addOption(newOption(ARGUMENT.DISABLE_CPAN, "Disable the Perl CPAN file Analyzer."))
+                .addOption(newOption(ARGUMENT.DISABLE_POETRY, "Disable the Poetry Analyzer."))
                 .addOption(newOption(ARGUMENT.DISABLE_GOLANG_MOD, "Disable the Golang Mod Analyzer."))
                 .addOption(newOption(ARGUMENT.DISABLE_DART, "Disable the Dart Analyzer."))
                 .addOption(newOption(ARGUMENT.DISABLE_OPENSSL, "Disable the OpenSSL Analyzer."))
@@ -489,7 +496,13 @@ public final class CliParser {
                 .addOption(newOption(ARGUMENT.DISABLE_RETIRE_JS, "Disable the RetireJS Analyzer."))
                 .addOption(newOption(ARGUMENT.ENABLE_NEXUS, "Enable the Nexus Analyzer."))
                 .addOption(newOption(ARGUMENT.ARTIFACTORY_ENABLED, "Whether the Artifactory Analyzer should be enabled."))
-                .addOption(newOption(ARGUMENT.PURGE_NVD, "Purges the local NVD data cache"));
+                .addOption(newOption(ARGUMENT.PURGE_NVD, "Purges the local NVD data cache"))
+                .addOption(newOption(ARGUMENT.HOSTED_SUPPRESSIONS_FORCEUPDATE, "Force the hosted suppressions file to update even"
+                                                                               + " if autoupdate is disabled"))
+                .addOption(newOptionWithArg(ARGUMENT.HOSTED_SUPPRESSIONS_VALID_FOR_HOURS, "hours",
+                                            "The number of hours to wait before checking for new updates of the the hosted suppressions file."))
+                .addOption(newOptionWithArg(ARGUMENT.HOSTED_SUPPRESSIONS_URL, "url",
+                                            "The URL for a mirrored hosted suppressions file"));
 
     }
 
@@ -1305,6 +1318,10 @@ public final class CliParser {
          */
         public static final String DISABLE_OSSINDEX_CACHE = "disableOssIndexCache";
         /**
+         * The alternative URL for the Sonatype OSS Index.
+         */
+        public static final String OSSINDEX_URL = "ossIndexUrl";
+        /**
          * The username for the Sonatype OSS Index.
          */
         public static final String OSSINDEX_USERNAME = "ossIndexUsername";
@@ -1361,6 +1378,14 @@ public final class CliParser {
          * The URL to the retire JS repository.
          */
         public static final String RETIREJS_URL = "retireJsUrl";
+        /**
+         * The username to the retire JS repository.
+         */
+        public static final String RETIREJS_URL_USER = "retireJsUrlUser";
+        /**
+         * The password to the retire JS repository.
+         */
+        public static final String RETIREJS_URL_PASSWORD = "retireJsUrlPass";
         /**
          * The URL of the nexus server.
          */
@@ -1491,5 +1516,18 @@ public final class CliParser {
          * when generating the JUNIT report format.
          */
         public static final String FAIL_JUNIT_ON_CVSS = "junitFailOnCVSS";
+        /**
+         * The CLI argument to set the number of hours to wait before re-checking hosted suppressions file for updates.
+         */
+        public static final String HOSTED_SUPPRESSIONS_VALID_FOR_HOURS = "hostedSuppressionsValidForHours";
+        /**
+         * The CLI argument to set Whether the hosted suppressions file will update regardless of the `noupdate` argument.
+         */
+        public static final String HOSTED_SUPPRESSIONS_FORCEUPDATE = "hostedSuppressionsForceUpdate";
+        /**
+         * The CLI argument to set the location of a mirrored hosted suppressions
+         * file .
+         */
+        public static final String HOSTED_SUPPRESSIONS_URL = "hostedSuppressionsUrl";
     }
 }

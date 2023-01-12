@@ -18,9 +18,8 @@
 package org.owasp.dependencycheck.analyzer;
 
 import com.github.packageurl.MalformedPackageURLException;
-import com.vdurmont.semver4j.Semver;
-import com.vdurmont.semver4j.Semver.SemverType;
-import com.vdurmont.semver4j.SemverException;
+import org.semver4j.Semver;
+import org.semver4j.SemverException;
 import java.io.File;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -212,6 +211,7 @@ public class DependencyBundlingAnalyzer extends AbstractDependencyComparingAnaly
         //  we may want to merge project references on virtual dependencies...
         if (dependency.getSha1sum() != null && dependency.getSha1sum().equals(relatedDependency.getSha1sum())) {
             dependency.addAllProjectReferences(relatedDependency.getProjectReferences());
+            dependency.addAllIncludedBy(relatedDependency.getIncludedBy());
         }
         if (dependenciesToRemove != null) {
             dependenciesToRemove.add(relatedDependency);
@@ -625,7 +625,7 @@ public class DependencyBundlingAnalyzer extends AbstractDependencyComparingAnaly
                 }
             }
             try {
-                final Semver v = new Semver(right, SemverType.NPM);
+                final Semver v = new Semver(right);
                 return v.satisfies(left);
             } catch (SemverException ex) {
                 LOGGER.trace("ignore", ex);
@@ -638,7 +638,7 @@ public class DependencyBundlingAnalyzer extends AbstractDependencyComparingAnaly
                 }
             }
             try {
-                Semver v = new Semver(left, SemverType.NPM);
+                Semver v = new Semver(left);
                 if (!right.isEmpty() && v.satisfies(right)) {
                     return true;
                 }
@@ -646,7 +646,7 @@ public class DependencyBundlingAnalyzer extends AbstractDependencyComparingAnaly
                     left = current;
                     right = stripLeadingNonNumeric(right);
                     if (right != null) {
-                        v = new Semver(right, SemverType.NPM);
+                        v = new Semver(right);
                         return v.satisfies(left);
                     }
                 }

@@ -118,7 +118,7 @@ retireJsAnalyzerEnabled             | Sets whether the RetireJS Analyzer should 
 retireJsForceUpdate                 | Sets whether the RetireJS Analyzer should update regardless of the `autoupdate` setting.                   | false
 retirejsFilterNonVulnerable         | Configures the RetireJS Analyzer to remove non-vulnerable JS dependencies from the report.                 | false
 retirejsFilter                      | A nested configuration that can be specified multple times; The regex defined is used to filter JS files based on content. | &nbsp;
-retireJsUrl                         | The URL to the Retire JS repository.                                                                       | https://raw.githubusercontent.com/Retirejs/retire.js/master/repository/jsrepository.json
+retireJsUrl                         | The URL to the Retire JS repository.                                                                       | https://raw.githubusercontent.com/Retirejs/retire.js/main/repository/jsrepository.json
 nuspecAnalyzerEnabled               | Sets whether the .NET Nuget Nuspec Analyzer will be used.                                                  | true
 nugetconfAnalyzerEnabled            | Sets whether the [experimental](../analyzers/index.html) .NET Nuget packages.config Analyzer will be used. `enableExperimental` must be set to true. | true
 cocoapodsAnalyzerEnabled            | Sets whether the [experimental](../analyzers/index.html) Cocoapods Analyzer should be used. `enableExperimental` must be set to true. | true
@@ -152,3 +152,6 @@ databaseDriverPath   | The path to the database driver JAR file; only used if th
 connectionString     | The connection string used to connect to the database. See using a [database server](../data/database.html). | &nbsp;
 databaseUser         | The username used when connecting to the database.                                                           | &nbsp;
 databasePassword     | The password used when connecting to the database.                                                           | &nbsp;
+hostedSuppressionsUrl | The URL to a mirrored copy of the hosted suppressions file for internet-constrained environments | https://jeremylong.github.io/DependencyCheck/suppressions/publishedSuppressions.xml
+hostedSuppressionsValidForHours | Sets the number of hours to wait before checking for new updates of the hosted suppressions file | 2
+hostedSuppressionsForceUpdate | Sets whether the hosted suppressions file should update regardless of the `autoupdate` and validForHours settings | false 

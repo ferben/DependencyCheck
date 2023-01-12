@@ -14,7 +14,7 @@ The following properties can be set on the dependency-check-maven plugin.
 
 Property                    | Description                        | Default Value
 ----------------------------|------------------------------------|------------------
-autoUpdate                  | Sets whether auto-updating of the NVD CVE/CPE data is enabled. It is not recommended that this be turned to false. | true
+autoUpdate                  | Sets whether auto-updating of the NVD CVE/CPE, retireJS and hosted suppressions data is enabled. It is not recommended that this be turned to false. | true
 cveValidForHours            | Sets the number of hours to wait before checking for new updates from the NVD.                                     | 4
 format                      | The report format to be generated (HTML, XML, CSV, JSON, JUNIT, SARIF, ALL). This configuration is ignored if `formats` is defined. This configuration option has no affect if using this within the Site plugin unless the externalReport is set to true. | HTML
 formats                     | A list of report formats to be generated (HTML, XML, CSV, JSON, JUNIT, SARIF, ALL). This configuration overrides the value from `format`. This configuration option has no affect if using this within the Site plugin unless the externalReport is set to true. | &nbsp;
@@ -27,6 +27,8 @@ name                        | The name of the report in the site. | dependency-c
 outputDirectory             | The location to write the report(s). This can be specified on the command line via `-Dodc.outputDirectory`. Note, this is not used if generating the report as part of a `mvn site` build. | 'target'
 scanSet                     | An optional collection of file sets that specify additional files and/or directories to analyze as part of the scan. If not specified, defaults to standard Maven conventions. This cannot be configured via the command line parameters (e.g. `-DscanSet=./path`) - use the below `scanDirectory` instead. Note that the scan sets specified should be relative from the base directory - do not use Maven project variable substitution (e.g. `${project.basedir}/src/webpack`). Using Maven project variable substitution can cause directories to be missed especially when using an aggregate build. | ['src/main/resources', 'src/main/filters', 'src/main/webapp', './package.json', './package-lock.json', './npm-shrinkwrap.json', './Gopkg.lock', './go.mod']
 scanDirectory               | An optional collection of directories to include in the scan. This configuration should only be used via the command line - if configuring the scan directories within the `pom.xml` please consider using the above `scanSet`. | &nbsp;
+scanDependencies            | Sets whether the dependencies should be scanned.                   | true
+scanPlugins                 | Sets whether the plugins and their dependencies should be scanned. | false
 skip                        | Skips the dependency-check analysis.                       | false
 skipProvidedScope           | Skip analysis for artifacts with Provided Scope.           | false
 skipRuntimeScope            | Skip analysis for artifacts with Runtime Scope.            | false
@@ -60,6 +62,7 @@ dartAnalyzerEnabled                 | Sets whether the [experimental](../analyze
 ossindexAnalyzerEnabled             | Sets whether the [OSS Index Analyzer](../analyzers/oss-index-analyzer.html) will be enabled. This analyzer requires an internet connection.         | true
 ossindexAnalyzerUseCache            | Sets whether the OSS Index Analyzer will cache results. Cached results expire after 24 hours.                                                       | true
 ossindexServerId                    | The id of a server defined in the settings.xml to retrieve the credentials (username and password) to connect to OSS Index instance; not it is not required to have a registered account and use this configuration. | &nbsp;
+ossindexAnalyzerUrl                 | The OSS Index server URL | https://ossindex.sonatype.org
 ossIndexWarnOnlyOnRemoteErrors      | Sets whether remote errors from the OSS Index (e.g. BAD GATEWAY, RATE LIMIT EXCEEDED) will result in warnings only instead of failing execution.    | false
 nexusAnalyzerEnabled                | Sets whether Nexus Analyzer will be used (requires Nexus Pro). This analyzer is superceded by the Central Analyzer; however, you can configure this to run against a Nexus Pro installation. | true
 nexusUrl                            | Defines the Nexus Server's web service end point (example http://domain.enterprise/service/local/). If not set the Nexus Analyzer will be disabled. | &nbsp;
@@ -81,7 +84,7 @@ cmakeAnalyzerEnabled                | Sets whether the [experimental](../analyze
 autoconfAnalyzerEnabled             | Sets whether the [experimental](../analyzers/index.html) autoconf Analyzer should be used. `enableExperimental` must be set to true.                | true
 pipAnalyzerEnabled                  | Sets whether the [experimental](../analyzers/index.html) pip Analyzer should be used. `enableExperimental` must be set to true.                     | true
 pipfileAnalyzerEnabled              | Sets whether the [experimental](../analyzers/index.html) Pipfile Analyzer should be used. `enableExperimental` must be set to true.                 | true
-poetryAnalyzerEnabled              | Sets whether the [experimental](../analyzers/index.html) Poetry Analyzer should be used. `enableExperimental` must be set to true.                 | true
+poetryAnalyzerEnabled               | Sets whether the [experimental](../analyzers/index.html) Poetry Analyzer should be used. `enableExperimental` must be set to true.                 | true
 composerAnalyzerEnabled             | Sets whether the [experimental](../analyzers/index.html) PHP Composer Lock File Analyzer should be used. `enableExperimental` must be set to true.  | true
 cpanfileAnalyzerEnabled             | Sets whether the [experimental](../analyzers/index.html) Perl CPAN File Analyzer should be used. `enableExperimental` must be set to true.          | true
 yarnAuditAnalyzerEnabled            | Sets whether the Yarn Audit Analyzer should be used. This analyzer requires yarn and an internet connection.  Use `nodeAuditSkipDevDependencies` to skip dev dependencies. | true
@@ -92,6 +95,7 @@ nodeAnalyzerEnabled                 | Sets whether the [retired](../analyzers/in
 nodeAuditAnalyzerEnabled            | Sets whether the Node Audit Analyzer should be used. This analyzer requires an internet connection.                                                 | true
 nodeAuditAnalyzerUseCache           | Sets whether the Node Audit Analyzer will cache results. Cached results expire after 24 hours.                                                      | true
 nodeAuditSkipDevDependencies        | Sets whether the Node Audit Analyzer will skip devDependencies.                                                                                     | false
+nodeAuditAnalyzerUrl                | The Node Audit API URL for the Node Audit Analyzer.                                                                                                 | https://registry.npmjs.org/-/npm/v1/security/audits
 nodePackageSkipDevDependencies      | Sets whether the Node Package Analyzer will skip devDependencies.                                                                                   | false
 retireJsAnalyzerEnabled             | Sets whether the RetireJS Analyzer should be used.                                                                                                  | true
 retireJsForceUpdate                 | Sets whether the RetireJS Analyzer should update regardless of the `autoupdate` setting.                                                            | false
@@ -156,6 +160,12 @@ connectionString         | The connection string used to connect to the database
 serverId                 | The id of a server defined in the settings.xml; this can be used to encrypt the database password. See [password encryption](http://maven.apache.org/guides/mini/guide-encryption.html) for more information. | &nbsp; |
 databaseUser             | The username used when connecting to the database.                                                                                         | &nbsp;                                                              |
 databasePassword         | The password used when connecting to the database.                                                                                         | &nbsp;                                                              |
+hostedSuppressionsForceUpdate                 | Whether the hosted suppressions file will update regardless of the `autoupdate` setting.                              | false
+hostedSuppressionsUrl                         | The URL to a mirrored copy of the hosted suppressions file for internet-constrained environments.                     | https://jeremylong.github.io/DependencyCheck/suppressions/publishedSuppressions.xml
+hostedSuppressionsValidForHours            | Sets the number of hours to wait before checking for new updates from the NVD.                                     | 2
+retireJsUrlServerId      | The id of a server defined in the settings.xml to retrieve the credentials (username and password) to connect to RetireJS instance. | &nbsp;
+retireJsUser          | If you don't want register user/password in settings.xml, you can specify user. | &nbsp;
+retireJsPassword         | If you don't want register user/password in settings.xml, you can specify user. | &nbsp;
 
 Proxy Configuration
 ====================
