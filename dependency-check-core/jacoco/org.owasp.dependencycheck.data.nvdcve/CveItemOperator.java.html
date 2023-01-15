@@ -204,7 +204,7 @@ public class CveItemOperator {
      * &lt;code&gt;false&lt;/code&gt;
      */
     public boolean isRejected(String description) {
-<span class="nc" id="L207">        return description.startsWith(&quot;** REJECT **&quot;);</span>
+<span class="nc bnc" id="L207" title="All 4 branches missed.">        return description.startsWith(&quot;** REJECT **&quot;) || description.startsWith(&quot;DO NOT USE THIS CANDIDATE NUMBER&quot;);</span>
     }
 
     /**

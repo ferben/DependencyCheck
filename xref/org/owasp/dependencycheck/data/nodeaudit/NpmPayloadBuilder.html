@@ -117,7 +117,7 @@
 <a class="jxr_linenumber" name="L109" href="#L109">109</a> 
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">if</strong> (dependencies != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>             dependencies.forEach((key, value) -&gt; {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> indexOfNodeModule = key.lastIndexOf(NodePackageAnalyzer.NODE_MODULES_DIRNAME);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> indexOfNodeModule = key.lastIndexOf(NodePackageAnalyzer.NODE_MODULES_DIRNAME + <span class="jxr_string">"/"</span>);
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>                 <strong class="jxr_keyword">if</strong> (indexOfNodeModule &gt;= 0) {
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>                     key = key.substring(indexOfNodeModule + NodePackageAnalyzer.NODE_MODULES_DIRNAME.length() + 1);
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>                 }

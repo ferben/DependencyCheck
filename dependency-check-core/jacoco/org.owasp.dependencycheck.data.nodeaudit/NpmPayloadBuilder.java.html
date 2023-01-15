@@ -109,7 +109,7 @@ public final class NpmPayloadBuilder {
 
 <span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (dependencies != null) {</span>
 <span class="fc" id="L111">            dependencies.forEach((key, value) -&gt; {</span>
-<span class="fc" id="L112">                final int indexOfNodeModule = key.lastIndexOf(NodePackageAnalyzer.NODE_MODULES_DIRNAME);</span>
+<span class="fc" id="L112">                final int indexOfNodeModule = key.lastIndexOf(NodePackageAnalyzer.NODE_MODULES_DIRNAME + &quot;/&quot;);</span>
 <span class="fc bfc" id="L113" title="All 2 branches covered.">                if (indexOfNodeModule &gt;= 0) {</span>
 <span class="fc" id="L114">                    key = key.substring(indexOfNodeModule + NodePackageAnalyzer.NODE_MODULES_DIRNAME.length() + 1);</span>
                 }

@@ -136,7 +136,7 @@ public class RetireJSDataSource implements CachedWebDataSource {
 <span class="fc" id="L136">        try (WriteLock lock = new WriteLock(settings, true, repoFile.getName() + &quot;.lock&quot;)) {</span>
 <span class="fc" id="L137">            LOGGER.debug(&quot;RetireJS Repo URL: {}&quot;, repoUrl.toExternalForm());</span>
 <span class="fc" id="L138">            final Downloader downloader = new Downloader(settings);</span>
-<span class="fc" id="L139">            downloader.fetchFile(repoUrl, repoFile);</span>
+<span class="fc" id="L139">            downloader.fetchFile(repoUrl, repoFile, Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_USER, Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_PASSWORD);</span>
 <span class="nc" id="L140">        } catch (IOException | TooManyRequestsException | ResourceNotFoundException | WriteLockException ex) {</span>
 <span class="nc" id="L141">            throw new UpdateException(&quot;Failed to initialize the RetireJS repo&quot;, ex);</span>
 <span class="fc" id="L142">        }</span>

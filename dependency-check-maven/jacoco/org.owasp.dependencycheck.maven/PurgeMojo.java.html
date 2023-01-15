@@ -104,5 +104,19 @@ import org.owasp.dependencycheck.exception.ExceptionCollection;
     protected ExceptionCollection scanDependencies(Engine engine) throws MojoExecutionException {
 <span class="nc" id="L105">        throw new UnsupportedOperationException(&quot;Operation not supported&quot;);</span>
     }
+
+    /**
+     * Throws an exception if called. The purge mojo does not scan dependencies.
+     *
+     * @param engine the engine used to scan
+     * @param exCollection the collection of exceptions that might have occurred
+     * previously
+     * @return a collection of exceptions
+     * @throws MojoExecutionException thrown if there is an exception
+     */
+    @Override
+    protected ExceptionCollection scanPlugins(final Engine engine, final ExceptionCollection exCollection) throws MojoExecutionException {
+<span class="nc" id="L119">        throw new UnsupportedOperationException(&quot;Operation not supported&quot;);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

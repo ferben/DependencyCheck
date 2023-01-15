@@ -159,52 +159,56 @@ import java.util.regex.Pattern;
 <span class="fc" id="L159">            final String artifact = pieces[1];</span>
             final String version;
 <span class="fc" id="L161">            String classifier = null;</span>
-<span class="fc bfc" id="L162" title="All 2 branches covered.">            if (pieces.length == 3) {</span>
-<span class="fc" id="L163">                version = pieces[2];</span>
-<span class="pc bpc" id="L164" title="1 of 2 branches missed.">            } else if (pieces.length == 4) {</span>
-<span class="nc" id="L165">                classifier = pieces[2];</span>
-<span class="nc" id="L166">                version = pieces[3];</span>
-            } else {
-                // length == 5 as guaranteed above.
-<span class="fc" id="L169">                classifier = pieces[3];</span>
-<span class="fc" id="L170">                version = pieces[4];</span>
+<span class="pc bpc" id="L162" title="1 of 3 branches missed.">            switch (pieces.length) {</span>
+                case 3:
+<span class="fc" id="L164">                    version = pieces[2];</span>
+<span class="fc" id="L165">                    break;</span>
+                case 4:
+<span class="nc" id="L167">                    classifier = pieces[2];</span>
+<span class="nc" id="L168">                    version = pieces[3];</span>
+<span class="nc" id="L169">                    break;</span>
+                default:
+                    // length == 5 as guaranteed above.
+<span class="fc" id="L172">                    classifier = pieces[3];</span>
+<span class="fc" id="L173">                    version = pieces[4];</span>
+                    break;
             }
 
-<span class="pc bpc" id="L173" title="1 of 4 branches missed.">            if (&quot;sources&quot;.equals(classifier) || &quot;javadoc&quot;.equals(classifier)) {</span>
-<span class="fc" id="L174">                LOGGER.debug(&quot;Skipping sources jar {}&quot;, dep.getCoord());</span>
-<span class="fc" id="L175">                continue;</span>
+<span class="pc bpc" id="L177" title="1 of 4 branches missed.">            if (&quot;sources&quot;.equals(classifier) || &quot;javadoc&quot;.equals(classifier)) {</span>
+<span class="fc" id="L178">                LOGGER.debug(&quot;Skipping sources jar {}&quot;, dep.getCoord());</span>
+<span class="fc" id="L179">                continue;</span>
             }
 
-<span class="fc" id="L178">            final Dependency d = new Dependency(dependency.getActualFile(), true);</span>
-<span class="fc" id="L179">            d.setEcosystem(Ecosystem.JAVA);</span>
-<span class="fc" id="L180">            d.addEvidence(EvidenceType.VENDOR, &quot;project&quot;, &quot;groupid&quot;, group, Confidence.HIGHEST);</span>
-<span class="fc" id="L181">            d.addEvidence(EvidenceType.PRODUCT, &quot;project&quot;, &quot;artifactid&quot;, artifact, Confidence.HIGHEST);</span>
-<span class="fc" id="L182">            d.addEvidence(EvidenceType.VERSION, &quot;project&quot;, &quot;version&quot;, version, Confidence.HIGHEST);</span>
-<span class="fc" id="L183">            d.setName(String.format(&quot;%s:%s&quot;, group, artifact));</span>
-<span class="fc" id="L184">            d.setFilePath(String.format(&quot;%s&gt;&gt;%s&quot;, dependency.getActualFile(), dep.getCoord()));</span>
-<span class="fc" id="L185">            d.setFileName(dep.getCoord());</span>
+<span class="fc" id="L182">            final Dependency d = new Dependency(dependency.getActualFile(), true);</span>
+<span class="fc" id="L183">            d.setEcosystem(Ecosystem.JAVA);</span>
+<span class="fc" id="L184">            d.addEvidence(EvidenceType.VENDOR, &quot;project&quot;, &quot;groupid&quot;, group, Confidence.HIGHEST);</span>
+<span class="fc" id="L185">            d.addEvidence(EvidenceType.PRODUCT, &quot;project&quot;, &quot;artifactid&quot;, artifact, Confidence.HIGHEST);</span>
+<span class="fc" id="L186">            d.addEvidence(EvidenceType.VERSION, &quot;project&quot;, &quot;version&quot;, version, Confidence.HIGHEST);</span>
+<span class="fc" id="L187">            d.setName(String.format(&quot;%s:%s&quot;, group, artifact));</span>
+<span class="fc" id="L188">            d.setFilePath(String.format(&quot;%s&gt;&gt;%s&quot;, dependency.getActualFile(), dep.getCoord()));</span>
+<span class="fc" id="L189">            d.setFileName(dep.getCoord());</span>
             try {
-<span class="fc" id="L187">                final PackageURLBuilder purl = PackageURLBuilder.aPackageURL()</span>
-<span class="fc" id="L188">                        .withType(PackageURL.StandardTypes.MAVEN)</span>
-<span class="fc" id="L189">                        .withNamespace(group)</span>
-<span class="fc" id="L190">                        .withName(artifact)</span>
-<span class="fc" id="L191">                        .withVersion(version);</span>
-<span class="pc bpc" id="L192" title="1 of 2 branches missed.">                if (classifier != null) {</span>
-<span class="nc" id="L193">                    purl.withQualifier(&quot;classifier&quot;, classifier);</span>
+<span class="fc" id="L191">                final PackageURLBuilder purl = PackageURLBuilder.aPackageURL()</span>
+<span class="fc" id="L192">                        .withType(PackageURL.StandardTypes.MAVEN)</span>
+<span class="fc" id="L193">                        .withNamespace(group)</span>
+<span class="fc" id="L194">                        .withName(artifact)</span>
+<span class="fc" id="L195">                        .withVersion(version);</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                if (classifier != null) {</span>
+<span class="nc" id="L197">                    purl.withQualifier(&quot;classifier&quot;, classifier);</span>
                 }
-<span class="fc" id="L195">                d.addSoftwareIdentifier(new PurlIdentifier(purl.build(), Confidence.HIGHEST));</span>
-<span class="nc" id="L196">            } catch (MalformedPackageURLException e) {</span>
-<span class="nc" id="L197">                d.addSoftwareIdentifier(new GenericIdentifier(&quot;maven_install JSON coord &quot; + dep.getCoord(), Confidence.HIGH));</span>
-<span class="fc" id="L198">            }</span>
-<span class="fc" id="L199">            d.setVersion(version);</span>
-<span class="fc" id="L200">            engine.addDependency(d);</span>
-<span class="fc" id="L201">        }</span>
-<span class="fc" id="L202">    }</span>
+<span class="fc" id="L199">                d.addSoftwareIdentifier(new PurlIdentifier(purl.build(), Confidence.HIGHEST));</span>
+<span class="nc" id="L200">            } catch (MalformedPackageURLException e) {</span>
+<span class="nc" id="L201">                d.addSoftwareIdentifier(new GenericIdentifier(&quot;maven_install JSON coord &quot; + dep.getCoord(), Confidence.HIGH));</span>
+<span class="fc" id="L202">            }</span>
+<span class="fc" id="L203">            d.setVersion(version);</span>
+<span class="fc" id="L204">            engine.addDependency(d);</span>
+<span class="fc" id="L205">        }</span>
+<span class="fc" id="L206">    }</span>
 
     @Override
     protected void prepareFileTypeAnalyzer(Engine engine) {
         // No initialization needed.
-<span class="fc" id="L207">    }</span>
+<span class="fc" id="L211">    }</span>
 
     /**
      * Represents the entire pinned Maven dependency set in an install.json
@@ -231,7 +235,7 @@ import java.util.regex.Pattern;
          * @return dependencyTree
          */
         public DependencyTree getDependencyTree() {
-<span class="fc" id="L234">            return dependencyTree;</span>
+<span class="fc" id="L238">            return dependencyTree;</span>
         }
     }
 
@@ -268,7 +272,7 @@ import java.util.regex.Pattern;
          * @return autogeneratedSentinel
          */
         public String getAutogeneratedSentinel() {
-<span class="fc" id="L271">            return autogeneratedSentinel;</span>
+<span class="fc" id="L275">            return autogeneratedSentinel;</span>
         }
 
         /**
@@ -277,7 +281,7 @@ import java.util.regex.Pattern;
          * @return dependencies
          */
         public List&lt;MavenDependency&gt; getDependencies() {
-<span class="fc" id="L280">            return dependencies;</span>
+<span class="fc" id="L284">            return dependencies;</span>
         }
 
         /**
@@ -286,7 +290,7 @@ import java.util.regex.Pattern;
          * @return version
          */
         public String getVersion() {
-<span class="fc" id="L289">            return version;</span>
+<span class="fc" id="L293">            return version;</span>
         }
 
     }
@@ -310,7 +314,7 @@ import java.util.regex.Pattern;
          * @return the value of coord
          */
         public String getCoord() {
-<span class="fc" id="L313">            return coord;</span>
+<span class="fc" id="L317">            return coord;</span>
         }
     }
 
@@ -320,9 +324,9 @@ import java.util.regex.Pattern;
     private static final ObjectReader INSTALL_FILE_READER;
 
     static {
-<span class="fc" id="L323">        final ObjectMapper mapper = new ObjectMapper();</span>
-<span class="fc" id="L324">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
-<span class="fc" id="L325">        INSTALL_FILE_READER = mapper.readerFor(InstallFile.class);</span>
-<span class="fc" id="L326">    }</span>
+<span class="fc" id="L327">        final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L328">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
+<span class="fc" id="L329">        INSTALL_FILE_READER = mapper.readerFor(InstallFile.class);</span>
+<span class="fc" id="L330">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

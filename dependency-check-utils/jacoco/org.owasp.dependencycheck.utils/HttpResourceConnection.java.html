@@ -230,7 +230,7 @@ public class HttpResourceConnection implements AutoCloseable {
                 } finally {
 <span class="nc" id="L231">                    conn = null;</span>
                 }
-<span class="nc" id="L233">                throw new ResourceNotFoundException(&quot;Requested resource does not exists - received a 404&quot;);</span>
+<span class="nc" id="L233">                throw new ResourceNotFoundException(&quot;Requested resource does not exist - received a 404&quot;);</span>
 <span class="pc bpc" id="L234" title="1 of 2 branches missed.">            } else if (status == 429) {</span>
                 try {
 <span class="nc" id="L236">                    conn.disconnect();</span>

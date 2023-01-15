@@ -76,6 +76,15 @@ public class DatabaseProperties {
     public static final String VERSION = &quot;version&quot;;
 
     /**
+     * The key for the last check time for the Known Exploited Vulnerabilities.
+     */
+    public static final String KEV_LAST_CHECKED = &quot;kev.checked&quot;;
+    /**
+     * The key for the version the Known Exploited Vulnerabilities.
+     */
+    public static final String KEV_VERSION = &quot;kev.version&quot;;
+
+    /**
      * A collection of properties about the data.
      */
     private final Properties properties;
@@ -89,10 +98,10 @@ public class DatabaseProperties {
      *
      * @param cveDB the database object holding the properties
      */
-<span class="fc" id="L92">    DatabaseProperties(CveDB cveDB) {</span>
-<span class="fc" id="L93">        this.cveDB = cveDB;</span>
-<span class="fc" id="L94">        this.properties = cveDB.getProperties();</span>
-<span class="fc" id="L95">    }</span>
+<span class="fc" id="L101">    DatabaseProperties(CveDB cveDB) {</span>
+<span class="fc" id="L102">        this.cveDB = cveDB;</span>
+<span class="fc" id="L103">        this.properties = cveDB.getProperties();</span>
+<span class="fc" id="L104">    }</span>
 
     /**
      * Returns whether or not any properties are set.
@@ -100,7 +109,7 @@ public class DatabaseProperties {
      * @return whether or not any properties are set
      */
     public synchronized boolean isEmpty() {
-<span class="nc bnc" id="L103" title="All 4 branches missed.">        return properties == null || properties.isEmpty();</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">        return properties == null || properties.isEmpty();</span>
     }
 
     /**
@@ -110,11 +119,11 @@ public class DatabaseProperties {
      * @throws UpdateException is thrown if there is an update exception
      */
     public synchronized void save(NvdCveInfo updatedValue) throws UpdateException {
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (updatedValue == null) {</span>
-<span class="nc" id="L114">            return;</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (updatedValue == null) {</span>
+<span class="nc" id="L123">            return;</span>
         }
-<span class="fc" id="L116">        save(LAST_UPDATED_BASE + updatedValue.getId(), String.valueOf(updatedValue.getTimestamp()));</span>
-<span class="fc" id="L117">    }</span>
+<span class="fc" id="L125">        save(LAST_UPDATED_BASE + updatedValue.getId(), String.valueOf(updatedValue.getTimestamp()));</span>
+<span class="fc" id="L126">    }</span>
 
     /**
      * Saves the key value pair to the properties store.
@@ -124,9 +133,9 @@ public class DatabaseProperties {
      * @throws UpdateException is thrown if there is an update exception
      */
     public synchronized void save(String key, String value) throws UpdateException {
-<span class="fc" id="L127">        properties.put(key, value);</span>
-<span class="fc" id="L128">        cveDB.saveProperty(key, value);</span>
-<span class="fc" id="L129">    }</span>
+<span class="fc" id="L136">        properties.put(key, value);</span>
+<span class="fc" id="L137">        cveDB.saveProperty(key, value);</span>
+<span class="fc" id="L138">    }</span>
 
     /**
      * Returns the property value for the given key. If the key is not contained
@@ -136,7 +145,7 @@ public class DatabaseProperties {
      * @return the value of the property
      */
     public synchronized String getProperty(String key) {
-<span class="fc" id="L139">        return properties.getProperty(key);</span>
+<span class="fc" id="L148">        return properties.getProperty(key);</span>
     }
 
     /**
@@ -148,7 +157,7 @@ public class DatabaseProperties {
      * @return the value of the property
      */
     public synchronized String getProperty(String key, String defaultValue) {
-<span class="fc" id="L151">        return properties.getProperty(key, defaultValue);</span>
+<span class="fc" id="L160">        return properties.getProperty(key, defaultValue);</span>
     }
 
     /**
@@ -157,7 +166,7 @@ public class DatabaseProperties {
      * @return the collection of Database Properties
      */
     public synchronized Properties getProperties() {
-<span class="fc" id="L160">        return properties;</span>
+<span class="fc" id="L169">        return properties;</span>
     }
 
     /**
@@ -168,26 +177,26 @@ public class DatabaseProperties {
      * @return a map of the database meta data
      */
     public synchronized Map&lt;String, String&gt; getMetaData() {
-<span class="fc" id="L171">        final Map&lt;String, String&gt; map = new TreeMap&lt;&gt;();</span>
-<span class="fc bfc" id="L172" title="All 2 branches covered.">        for (Entry&lt;Object, Object&gt; entry : properties.entrySet()) {</span>
-<span class="fc" id="L173">            final String key = (String) entry.getKey();</span>
-<span class="fc bfc" id="L174" title="All 2 branches covered.">            if (!&quot;version&quot;.equals(key)) {</span>
-<span class="fc bfc" id="L175" title="All 6 branches covered.">                if (&quot;NVD CVE Modified&quot;.equals(key) || &quot;NVD CVE Checked&quot;.equals(key) || &quot;VersionCheckOn&quot;.equals(key)) {</span>
+<span class="fc" id="L180">        final Map&lt;String, String&gt; map = new TreeMap&lt;&gt;();</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        for (Entry&lt;Object, Object&gt; entry : properties.entrySet()) {</span>
+<span class="fc" id="L182">            final String key = (String) entry.getKey();</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            if (!&quot;version&quot;.equals(key)) {</span>
+<span class="fc bfc" id="L184" title="All 6 branches covered.">                if (&quot;NVD CVE Modified&quot;.equals(key) || &quot;NVD CVE Checked&quot;.equals(key) || &quot;VersionCheckOn&quot;.equals(key)) {</span>
                     try {
-<span class="fc" id="L177">                        final long epoch = Long.parseLong((String) entry.getValue());</span>
-<span class="fc" id="L178">                        final ZonedDateTime dateTime = Instant.ofEpochSecond(epoch).atZone(ZoneId.systemDefault());</span>
-<span class="fc" id="L179">                        final String formatted = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime);</span>
-<span class="fc" id="L180">                        map.put(key, formatted);</span>
-<span class="nc" id="L181">                    } catch (Throwable ex) { //deliberately being broad in this catch clause</span>
-<span class="nc" id="L182">                        LOGGER.debug(&quot;Unable to parse timestamp from DB&quot;, ex);</span>
-<span class="nc" id="L183">                        map.put(key, (String) entry.getValue());</span>
-<span class="pc" id="L184">                    }</span>
-<span class="pc bpc" id="L185" title="1 of 2 branches missed.">                } else if (!key.startsWith(&quot;NVD CVE &quot;)) {</span>
-<span class="nc" id="L186">                    map.put(key, (String) entry.getValue());</span>
+<span class="fc" id="L186">                        final long epoch = Long.parseLong((String) entry.getValue());</span>
+<span class="fc" id="L187">                        final ZonedDateTime dateTime = Instant.ofEpochSecond(epoch).atZone(ZoneId.systemDefault());</span>
+<span class="fc" id="L188">                        final String formatted = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dateTime);</span>
+<span class="fc" id="L189">                        map.put(key, formatted);</span>
+<span class="nc" id="L190">                    } catch (Throwable ex) { //deliberately being broad in this catch clause</span>
+<span class="nc" id="L191">                        LOGGER.debug(&quot;Unable to parse timestamp from DB&quot;, ex);</span>
+<span class="nc" id="L192">                        map.put(key, (String) entry.getValue());</span>
+<span class="pc" id="L193">                    }</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">                } else if (!key.startsWith(&quot;NVD CVE &quot;)) {</span>
+<span class="nc" id="L195">                    map.put(key, (String) entry.getValue());</span>
                 }
             }
-<span class="fc" id="L189">        }</span>
-<span class="fc" id="L190">        return map;</span>
+<span class="fc" id="L198">        }</span>
+<span class="fc" id="L199">        return map;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -95,8 +95,8 @@ import us.springett.parsers.cpe.util.Convert;
 <span class="fc bfc" id="L95" title="All 2 branches covered.">            for (Vulnerability v : d.getVulnerabilities()) {</span>
 <span class="fc bfc" id="L96" title="All 2 branches covered.">                if (!rules.containsKey(v.getName())) {</span>
 <span class="fc" id="L97">                    final SarifRule r = new SarifRule(v.getName(),</span>
-<span class="fc" id="L98">                            buildShortDescription(d, v),</span>
-<span class="fc" id="L99">                            v.getDescription(),</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                            buildShortDescription(d, v, v.getKnownExploitedVulnerability() != null),</span>
+<span class="fc" id="L99">                            buildDescription(v.getDescription(), v.getKnownExploitedVulnerability()),</span>
 <span class="fc" id="L100">                            v.getSource().name(),</span>
 <span class="fc" id="L101">                            v.getCvssV2(),</span>
 <span class="fc" id="L102">                            v.getCvssV3());</span>
@@ -145,27 +145,65 @@ import us.springett.parsers.cpe.util.Convert;
      *
      * @param d the dependency
      * @param vuln the vulnerability
+     * @param knownExploited true if the vulnerability is known to be exploited
      * @return the short description
      */
-    private String buildShortDescription(Dependency d, Vulnerability vuln) {
-<span class="fc" id="L151">        final StringBuilder sb = new StringBuilder();</span>
-<span class="fc" id="L152">        sb.append(determineScore(vuln))</span>
-<span class="fc" id="L153">                .append(&quot; severity - &quot;)</span>
-<span class="fc" id="L154">                .append(vuln.getName());</span>
-<span class="pc bpc" id="L155" title="1 of 4 branches missed.">        if (vuln.getCwes() != null &amp;&amp; !vuln.getCwes().isEmpty()) {</span>
-<span class="fc" id="L156">            final String cwe = vuln.getCwes().getFullCwes().values().iterator().next();</span>
-<span class="pc bpc" id="L157" title="2 of 6 branches missed.">            if (cwe != null &amp;&amp; !&quot;NVD-CWE-Other&quot;.equals(cwe) &amp;&amp; !&quot;NVD-CWE-noinfo&quot;.equals(cwe)) {</span>
-<span class="fc" id="L158">                sb.append(&quot; &quot;).append(cwe);</span>
+    private String buildShortDescription(Dependency d, Vulnerability vuln, boolean knownExploited) {
+<span class="fc" id="L152">        final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L153">        sb.append(determineScore(vuln))</span>
+<span class="fc" id="L154">                .append(&quot; severity - &quot;)</span>
+<span class="fc" id="L155">                .append(vuln.getName());</span>
+<span class="pc bpc" id="L156" title="1 of 4 branches missed.">        if (vuln.getCwes() != null &amp;&amp; !vuln.getCwes().isEmpty()) {</span>
+<span class="fc" id="L157">            final String cwe = vuln.getCwes().getFullCwes().values().iterator().next();</span>
+<span class="pc bpc" id="L158" title="2 of 6 branches missed.">            if (cwe != null &amp;&amp; !&quot;NVD-CWE-Other&quot;.equals(cwe) &amp;&amp; !&quot;NVD-CWE-noinfo&quot;.equals(cwe)) {</span>
+<span class="fc" id="L159">                sb.append(&quot; &quot;).append(cwe);</span>
             }
         }
-<span class="fc" id="L161">        sb.append(&quot; vulnerability in &quot;);</span>
-<span class="pc bpc" id="L162" title="2 of 4 branches missed.">        if (d.getSoftwareIdentifiers() != null &amp;&amp; !d.getSoftwareIdentifiers().isEmpty()) {</span>
-<span class="fc" id="L163">            sb.append(d.getSoftwareIdentifiers().iterator().next());</span>
+<span class="fc" id="L162">        sb.append(&quot; vulnerability in &quot;);</span>
+<span class="pc bpc" id="L163" title="2 of 4 branches missed.">        if (d.getSoftwareIdentifiers() != null &amp;&amp; !d.getSoftwareIdentifiers().isEmpty()) {</span>
+<span class="fc" id="L164">            sb.append(d.getSoftwareIdentifiers().iterator().next());</span>
         } else {
-<span class="nc" id="L165">            sb.append(d.getDisplayFileName());</span>
+<span class="nc" id="L166">            sb.append(d.getDisplayFileName());</span>
         }
-<span class="fc" id="L167">        return sb.toString();</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if (knownExploited) {</span>
+<span class="nc" id="L169">            sb.append(&quot; *Known Exploited Vulnerability*&quot;);</span>
+        }
+<span class="fc" id="L171">        return sb.toString();</span>
     }
 
+    private String buildDescription(String description,
+            org.owasp.dependencycheck.data.knownexploited.json.Vulnerability knownExploitedVulnerability) {
+<span class="fc" id="L176">        final StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        if (knownExploitedVulnerability != null) {</span>
+<span class="nc" id="L178">            sb.append(&quot;CISA Known Exploited Vulnerability\n&quot;);</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            if (knownExploitedVulnerability.getVendorProject() != null) {</span>
+<span class="nc" id="L180">                sb.append(&quot;Vendor/Project: &quot;).append(knownExploitedVulnerability.getVendorProject()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            if (knownExploitedVulnerability.getProduct() != null) {</span>
+<span class="nc" id="L183">                sb.append(&quot;Product: &quot;).append(knownExploitedVulnerability.getProduct()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc bnc" id="L185" title="All 2 branches missed.">            if (knownExploitedVulnerability.getVulnerabilityName() != null) {</span>
+<span class="nc" id="L186">                sb.append(&quot;Vulnerability Name: &quot;).append(knownExploitedVulnerability.getVulnerabilityName()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            if (knownExploitedVulnerability.getDateAdded() != null) {</span>
+<span class="nc" id="L189">                sb.append(&quot;Date Added: &quot;).append(knownExploitedVulnerability.getDateAdded()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (knownExploitedVulnerability.getShortDescription() != null) {</span>
+<span class="nc" id="L192">                sb.append(&quot;Short Description: &quot;).append(knownExploitedVulnerability.getShortDescription()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (knownExploitedVulnerability.getRequiredAction() != null) {</span>
+<span class="nc" id="L195">                sb.append(&quot;Required Action: &quot;).append(knownExploitedVulnerability.getRequiredAction()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            if (knownExploitedVulnerability.getDueDate() != null) {</span>
+<span class="nc" id="L198">                sb.append(&quot;Due Date&quot;).append(knownExploitedVulnerability.getDueDate()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc bnc" id="L200" title="All 2 branches missed.">            if (knownExploitedVulnerability.getNotes() != null) {</span>
+<span class="nc" id="L201">                sb.append(&quot;Notes: &quot;).append(knownExploitedVulnerability.getNotes()).append(&quot;\n&quot;);</span>
+            }
+<span class="nc" id="L203">            sb.append(&quot;\n&quot;);</span>
+        }
+<span class="fc" id="L205">        sb.append(description);</span>
+<span class="fc" id="L206">        return sb.toString();</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

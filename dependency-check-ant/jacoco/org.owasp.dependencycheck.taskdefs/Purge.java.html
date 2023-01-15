@@ -61,18 +61,23 @@ public class Purge extends Task {
 <span class="fc" id="L61">    private boolean failOnError = true;</span>
 
     /**
+     * The URL to hosted suppressions file with base FP suppressions.
+     */
+<span class="fc" id="L66">    private String hostedSuppressionsUrl = null;</span>
+
+    /**
      * Construct a new DependencyCheckTask.
      */
     public Purge() {
-<span class="fc" id="L67">        super();</span>
+<span class="fc" id="L72">        super();</span>
 
         // Call this before Dependency Check Core starts logging anything - this way, all SLF4J messages from
         // core end up coming through this tasks logger
-<span class="fc" id="L71">        StaticLoggerBinder.getSingleton().setTask(this);</span>
-<span class="fc" id="L72">    }</span>
+<span class="fc" id="L76">        StaticLoggerBinder.getSingleton().setTask(this);</span>
+<span class="fc" id="L77">    }</span>
 
     public Settings getSettings() {
-<span class="fc" id="L75">        return settings;</span>
+<span class="fc" id="L80">        return settings;</span>
     }
 
     /**
@@ -81,7 +86,7 @@ public class Purge extends Task {
      * @return the value of dataDirectory
      */
     public String getDataDirectory() {
-<span class="nc" id="L84">        return dataDirectory;</span>
+<span class="nc" id="L89">        return dataDirectory;</span>
     }
 
     /**
@@ -90,8 +95,8 @@ public class Purge extends Task {
      * @param dataDirectory new value of dataDirectory
      */
     public void setDataDirectory(String dataDirectory) {
-<span class="nc" id="L93">        this.dataDirectory = dataDirectory;</span>
-<span class="nc" id="L94">    }</span>
+<span class="nc" id="L98">        this.dataDirectory = dataDirectory;</span>
+<span class="nc" id="L99">    }</span>
 
     /**
      * Get the value of failOnError.
@@ -99,7 +104,7 @@ public class Purge extends Task {
      * @return the value of failOnError
      */
     public boolean isFailOnError() {
-<span class="nc" id="L102">        return failOnError;</span>
+<span class="nc" id="L107">        return failOnError;</span>
     }
 
     /**
@@ -108,25 +113,46 @@ public class Purge extends Task {
      * @param failOnError new value of failOnError
      */
     public void setFailOnError(boolean failOnError) {
-<span class="nc" id="L111">        this.failOnError = failOnError;</span>
-<span class="nc" id="L112">    }</span>
+<span class="nc" id="L116">        this.failOnError = failOnError;</span>
+<span class="nc" id="L117">    }</span>
 
     /**
-     * Sets the {@link Thread#getContextClassLoader() Thread Context Class Loader} to the one for this class, and then calls {@link #executeWithContextClassloader()}. This is done because the JCS cache needs to have the Thread Context Class Loader set to something that can resolve it's classes. Other build tools do this by default but Ant does not.
+     * Get the value of hostedSuppressionsUrl.
+     *
+     * @return the value of hostedSuppressionsUrl
+     */
+    public String getHostedSuppressionsUrl() {
+<span class="nc" id="L125">        return hostedSuppressionsUrl;</span>
+    }
+
+    /**
+     * Set the value of hostedSuppressionsUrl.
+     *
+     * @param hostedSuppressionsUrl new value of hostedSuppressionsUrl
+     */
+    public void setHostedSuppressionsUrl(final String hostedSuppressionsUrl) {
+<span class="nc" id="L134">        this.hostedSuppressionsUrl = hostedSuppressionsUrl;</span>
+<span class="nc" id="L135">    }</span>
+
+    /**
+     * Sets the {@link Thread#getContextClassLoader() Thread Context Class Loader} to the one for this class,
+     * and then calls {@link #executeWithContextClassloader()}. This is done because the JCS cache needs to have
+     * the Thread Context Class Loader set to something that can resolve it's classes. Other build tools do this
+     * by default but Ant does not.
      *
      * @throws BuildException throws if there is a problem. See {@link #executeWithContextClassloader()} for details
      */
     @Override
     public final void execute() throws BuildException {
-<span class="fc" id="L121">        ClassLoader current = Thread.currentThread().getContextClassLoader();</span>
+<span class="fc" id="L147">        ClassLoader current = Thread.currentThread().getContextClassLoader();</span>
         try {
-<span class="fc" id="L123">            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());</span>
+<span class="fc" id="L149">            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());</span>
 
-<span class="fc" id="L125">            executeWithContextClassloader();</span>
+<span class="fc" id="L151">            executeWithContextClassloader();</span>
         } finally {
-<span class="fc" id="L127">            Thread.currentThread().setContextClassLoader(current);</span>
+<span class="fc" id="L153">            Thread.currentThread().setContextClassLoader(current);</span>
         }
-<span class="fc" id="L129">    }</span>
+<span class="fc" id="L155">    }</span>
 
     /**
      * Executes the dependency-check purge to delete the existing local copy of
@@ -137,13 +163,13 @@ public class Purge extends Task {
     //see note on `Check.dealWithReferences()` for information on this suppression
     @SuppressWarnings(&quot;squid:RedundantThrowsDeclarationCheck&quot;)
     protected void executeWithContextClassloader() throws BuildException {
-<span class="nc" id="L140">        populateSettings();</span>
-<span class="nc" id="L141">        try (Engine engine = new Engine(Engine.Mode.EVIDENCE_PROCESSING, getSettings())) {</span>
-<span class="nc" id="L142">            engine.purge();</span>
+<span class="nc" id="L166">        populateSettings();</span>
+<span class="nc" id="L167">        try (Engine engine = new Engine(Engine.Mode.EVIDENCE_PROCESSING, getSettings())) {</span>
+<span class="nc" id="L168">            engine.purge();</span>
         } finally {
-<span class="nc" id="L144">            settings.cleanup(true);</span>
+<span class="nc" id="L170">            settings.cleanup(true);</span>
         }
-<span class="nc" id="L146">    }</span>
+<span class="nc" id="L172">    }</span>
 
     /**
      * Takes the properties supplied and updates the dependency-check settings.
@@ -155,25 +181,26 @@ public class Purge extends Task {
     //see note on `Check.dealWithReferences()` for information on this suppression
     @SuppressWarnings(&quot;squid:RedundantThrowsDeclarationCheck&quot;)
     protected void populateSettings() throws BuildException {
-<span class="fc" id="L158">        settings = new Settings();</span>
-<span class="fc" id="L159">        try (InputStream taskProperties = this.getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {</span>
-<span class="fc" id="L160">            settings.mergeProperties(taskProperties);</span>
-<span class="nc" id="L161">        } catch (IOException ex) {</span>
-<span class="nc" id="L162">            final String msg = &quot;Unable to load the dependency-check ant task.properties file.&quot;;</span>
-<span class="nc bnc" id="L163" title="All 2 branches missed.">            if (this.failOnError) {</span>
-<span class="nc" id="L164">                throw new BuildException(msg, ex);</span>
+<span class="fc" id="L184">        settings = new Settings();</span>
+<span class="fc" id="L185">        try (InputStream taskProperties = this.getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {</span>
+<span class="fc" id="L186">            settings.mergeProperties(taskProperties);</span>
+<span class="nc" id="L187">        } catch (IOException ex) {</span>
+<span class="nc" id="L188">            final String msg = &quot;Unable to load the dependency-check ant task.properties file.&quot;;</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            if (this.failOnError) {</span>
+<span class="nc" id="L190">                throw new BuildException(msg, ex);</span>
             }
-<span class="nc" id="L166">            log(msg, ex, Project.MSG_WARN);</span>
-<span class="fc" id="L167">        }</span>
-<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if (dataDirectory != null) {</span>
-<span class="nc" id="L169">            settings.setString(Settings.KEYS.DATA_DIRECTORY, dataDirectory);</span>
+<span class="nc" id="L192">            log(msg, ex, Project.MSG_WARN);</span>
+<span class="fc" id="L193">        }</span>
+<span class="fc" id="L194">        settings.setStringIfNotEmpty(Settings.KEYS.HOSTED_SUPPRESSIONS_URL, hostedSuppressionsUrl);</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">        if (dataDirectory != null) {</span>
+<span class="nc" id="L196">            settings.setString(Settings.KEYS.DATA_DIRECTORY, dataDirectory);</span>
         } else {
-<span class="fc" id="L171">            final File jarPath = new File(Purge.class.getProtectionDomain().getCodeSource().getLocation().getPath());</span>
-<span class="fc" id="L172">            final File base = jarPath.getParentFile();</span>
-<span class="fc" id="L173">            final String sub = settings.getString(Settings.KEYS.DATA_DIRECTORY);</span>
-<span class="fc" id="L174">            final File dataDir = new File(base, sub);</span>
-<span class="fc" id="L175">            settings.setString(Settings.KEYS.DATA_DIRECTORY, dataDir.getAbsolutePath());</span>
+<span class="fc" id="L198">            final File jarPath = new File(Purge.class.getProtectionDomain().getCodeSource().getLocation().getPath());</span>
+<span class="fc" id="L199">            final File base = jarPath.getParentFile();</span>
+<span class="fc" id="L200">            final String sub = settings.getString(Settings.KEYS.DATA_DIRECTORY);</span>
+<span class="fc" id="L201">            final File dataDir = new File(base, sub);</span>
+<span class="fc" id="L202">            settings.setString(Settings.KEYS.DATA_DIRECTORY, dataDir.getAbsolutePath());</span>
         }
-<span class="fc" id="L177">    }</span>
+<span class="fc" id="L204">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
